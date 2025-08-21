@@ -79,7 +79,12 @@ export class MemStorage implements IStorage {
       replyCount: insertComment.replyCount || null,
       authorProfileImageUrl: insertComment.authorProfileImageUrl || null,
       updatedAt: insertComment.updatedAt || null,
-      parentId: insertComment.parentId || null
+      parentId: insertComment.parentId || null,
+      sentiment: insertComment.sentiment || null,
+      topics: (insertComment.topics as string[]) || null,
+      aiConfidence: insertComment.aiConfidence || null,
+      aiReasoning: insertComment.aiReasoning || null,
+      isAiAnalyzed: insertComment.isAiAnalyzed || false
     };
     this.comments.set(id, comment);
     
@@ -133,6 +138,13 @@ export class MemStorage implements IStorage {
     const analysis: Analysis = { 
       ...insertAnalysis, 
       id, 
+      positiveCount: insertAnalysis.positiveCount || 0,
+      negativeCount: insertAnalysis.negativeCount || 0,
+      neutralCount: insertAnalysis.neutralCount || 0,
+      spamCount: insertAnalysis.spamCount || 0,
+      topTopics: (insertAnalysis.topTopics as string[]) || null,
+      aiSummary: insertAnalysis.aiSummary || null,
+      isAiAnalyzed: insertAnalysis.isAiAnalyzed || false,
       topWords: insertAnalysis.topWords as Array<{word: string, count: number}>,
       createdAt: new Date()
     };

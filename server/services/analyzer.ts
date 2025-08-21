@@ -1,4 +1,5 @@
 import { Comment, InsertComment } from "@shared/schema";
+import { OpenRouterService } from "./openrouter";
 
 interface WordCount {
   word: string;
@@ -6,6 +7,8 @@ interface WordCount {
 }
 
 export class CommentAnalyzer {
+  private openRouterService: OpenRouterService | null = null;
+  
   private questionKeywords = [
     'how', 'what', 'why', 'when', 'where', 'who', 'which', 'can', 'could', 
     'would', 'should', 'will', 'do', 'does', 'did', 'is', 'are', 'was', 'were',
@@ -29,8 +32,20 @@ export class CommentAnalyzer {
     'very', 'just', 'now', 'here', 'there', 'when', 'where', 'why', 'how', 'what'
   ]);
 
-  categorizeComment(text: string): 'question' | 'joke' | 'discussion' {
+  constructor() {
+    // Temporarily disable OpenRouter to use enhanced keyword analysis
+    // TODO: Fix OpenRouter API integration
+    this.openRouterService = null;
+    console.log('Using enhanced keyword-based analysis (OpenRouter temporarily disabled)');
+  }
+
+  categorizeComment(text: string): 'question' | 'joke' | 'discussion' | 'positive' | 'negative' | 'neutral' | 'spam' {
     const lowerText = text.toLowerCase().trim();
+    
+    // Check for spam indicators first
+    if (this.isSpam(lowerText)) {
+      return 'spam';
+    }
     
     // Check if it's a question
     if (this.isQuestion(lowerText)) {
@@ -40,6 +55,16 @@ export class CommentAnalyzer {
     // Check if it's a joke
     if (this.isJoke(lowerText)) {
       return 'joke';
+    }
+    
+    // Check for positive sentiment
+    if (this.isPositive(lowerText)) {
+      return 'positive';
+    }
+    
+    // Check for negative sentiment
+    if (this.isNegative(lowerText)) {
+      return 'negative';
     }
     
     // Everything else is a discussion
@@ -78,6 +103,125 @@ export class CommentAnalyzer {
     return this.jokeKeywords.some(keyword => {
       return words.some(word => word.includes(keyword));
     });
+  }
+
+  private isSpam(text: string): boolean {
+    const spamIndicators = [
+      'subscribe', 'follow me', 'check out my', 'click here', 'free money',
+      'win now', 'limited time', 'act now', 'buy now', 'visit my channel',
+      'promo', 'discount', 'sale', 'offer', 'deal', 'prize', 'giveaway'
+    ];
+    
+    // Check for repeated characters (often spam)
+    if (/(.)\1{4,}/.test(text)) {
+      return true;
+    }
+    
+    // Check for spam keywords
+    return spamIndicators.some(indicator => text.includes(indicator));
+  }
+
+  private isPositive(text: string): boolean {
+    const positiveWords = [
+      'love', 'great', 'awesome', 'amazing', 'fantastic', 'excellent', 'wonderful', 
+      'perfect', 'best', 'incredible', 'brilliant', 'outstanding', 'superb', 'marvelous',
+      'good', 'nice', 'cool', 'sweet', 'beautiful', 'helpful', 'useful', 'thanks',
+      'thank you', 'appreciate', 'grateful', 'blessed', 'happy', 'joy', 'excited'
+    ];
+    return positiveWords.some(word => text.includes(word));
+  }
+
+  private isNegative(text: string): boolean {
+    const negativeWords = [
+      'hate', 'awful', 'terrible', 'bad', 'worst', 'horrible', 'disgusting', 
+      'pathetic', 'stupid', 'dumb', 'ugly', 'annoying', 'boring', 'useless',
+      'waste', 'sucks', 'trash', 'garbage', 'disappointed', 'angry', 'mad',
+      'frustrated', 'sad', 'depressed', 'wrong', 'fail', 'failed'
+    ];
+    return negativeWords.some(word => text.includes(word));
+  }
+
+  getSentiment(text: string): 'positive' | 'negative' | 'neutral' {
+    const lowerText = text.toLowerCase().trim();
+    
+    if (this.isPositive(lowerText)) {
+      return 'positive';
+    }
+    
+    if (this.isNegative(lowerText)) {
+      return 'negative';
+    }
+    
+    return 'neutral';
+  }
+
+  async categorizeCommentsWithAI(comments: Array<{
+    id: string;
+    authorDisplayName: string;
+    authorProfileImageUrl: string | null;
+    textDisplay: string;
+    textOriginal: string;
+    likeCount: number;
+    replyCount: number;
+    publishedAt: Date;
+    updatedAt: Date | null;
+    parentId: string | null;
+  }>): Promise<InsertComment[]> {
+    
+    if (!this.openRouterService) {
+      // Fallback to basic categorization
+      return this.categorizeComments(comments);
+    }
+
+    try {
+      console.log(`Analyzing ${comments.length} comments with AI...`);
+      
+      // Prepare comments for AI analysis
+      const commentsForAI = comments.map(comment => ({
+        id: comment.id,
+        text: comment.textDisplay
+      }));
+
+      // Get AI analysis
+      const aiResults = await this.openRouterService.analyzeCommentsBatch(commentsForAI);
+
+      // Map results back to comments
+      const categorizedComments: InsertComment[] = comments.map(comment => {
+        const aiResult = aiResults.get(comment.id);
+        
+        if (aiResult) {
+          return {
+            ...comment,
+            videoId: '', // Will be set by caller
+            category: aiResult.category,
+            sentiment: aiResult.sentiment,
+            topics: aiResult.topics,
+            aiConfidence: Math.round(aiResult.confidence * 100),
+            aiReasoning: aiResult.reasoning,
+            isAiAnalyzed: true,
+          };
+        } else {
+          // Fallback to basic categorization
+          return {
+            ...comment,
+            videoId: '', // Will be set by caller
+            category: this.categorizeComment(comment.textDisplay),
+            sentiment: null,
+            topics: null,
+            aiConfidence: null,
+            aiReasoning: null,
+            isAiAnalyzed: false,
+          };
+        }
+      });
+
+      console.log(`AI analysis completed for ${categorizedComments.filter(c => c.isAiAnalyzed).length}/${comments.length} comments`);
+      return categorizedComments;
+
+    } catch (error) {
+      console.error('AI analysis failed, falling back to basic categorization:', error);
+      return this.categorizeComments(comments);
+    }
   }
 
   extractTopWords(comments: Comment[], limit: number = 20): WordCount[] {
@@ -127,11 +271,21 @@ export class CommentAnalyzer {
     updatedAt: Date | null;
     parentId: string | null;
   }>): InsertComment[] {
-    return comments.map(comment => ({
-      ...comment,
-      videoId: '', // Will be set by caller
-      category: this.categorizeComment(comment.textDisplay),
-    }));
+    return comments.map(comment => {
+      const category = this.categorizeComment(comment.textDisplay);
+      const sentiment = this.getSentiment(comment.textDisplay);
+      
+      return {
+        ...comment,
+        videoId: '', // Will be set by caller
+        category,
+        sentiment,
+        topics: null, // Enhanced keyword analysis doesn't extract topics
+        aiConfidence: 75, // Fixed confidence for keyword-based analysis
+        aiReasoning: `Keyword-based analysis: ${category} with ${sentiment} sentiment`,
+        isAiAnalyzed: false, // This is keyword-based, not AI
+      };
+    });
   }
 
   generateAnalysisStats(comments: Comment[]) {
@@ -140,7 +294,13 @@ export class CommentAnalyzer {
       questions: 0,
       jokes: 0,
       discussions: 0,
+      positive: 0,
+      negative: 0,
+      neutral: 0,
+      spam: 0,
     };
+
+    console.log(`Generating analysis stats for ${comments.length} comments`);
 
     for (const comment of comments) {
       switch (comment.category) {
@@ -153,9 +313,42 @@ export class CommentAnalyzer {
         case 'discussion':
           stats.discussions++;
           break;
+        case 'positive':
+          stats.positive++;
+          break;
+        case 'negative':
+          stats.negative++;
+          break;
+        case 'neutral':
+          stats.neutral++;
+          break;
+        case 'spam':
+          stats.spam++;
+          break;
       }
     }
 
+    console.log('Analysis stats:', stats);
     return stats;
+  }
+
+  async generateTopicSummary(comments: Comment[]): Promise<{ topics: string[]; summary: string }> {
+    if (!this.openRouterService) {
+      return {
+        topics: ['general discussion'],
+        summary: 'AI service not available for detailed analysis'
+      };
+    }
+
+    try {
+      const commentTexts = comments.map(c => c.textDisplay);
+      return await this.openRouterService.generateTopicSummary(commentTexts);
+    } catch (error) {
+      console.error('Topic summary generation failed:', error);
+      return {
+        topics: ['general discussion'],
+        summary: 'Unable to generate AI summary'
+      };
+    }
   }
 }

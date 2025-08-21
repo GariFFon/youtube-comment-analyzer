@@ -13,6 +13,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const youtubeService = new YouTubeService();
   const analyzer = new CommentAnalyzer();
 
+  console.log('Routes registered successfully');
+
   // Analyze video endpoint
   app.post("/api/analyze", async (req, res) => {
     try {
@@ -40,8 +42,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         video = await storage.createVideo(videoData);
       }
 
-      // Categorize comments
-      const categorizedComments = analyzer.categorizeComments(rawComments);
+      // Categorize comments with AI
+      const categorizedComments = await analyzer.categorizeCommentsWithAI(rawComments);
       const commentsWithVideoId = categorizedComments.map(comment => ({
         ...comment,
         videoId: video!.id,
@@ -53,6 +55,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Generate analysis
       const stats = analyzer.generateAnalysisStats(savedComments);
       const topWords = analyzer.extractTopWords(savedComments, 20);
+      const topicSummary = await analyzer.generateTopicSummary(savedComments);
 
       const analysis = await storage.createAnalysis({
         videoId: video.id,
@@ -60,7 +63,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         questionsCount: stats.questions,
         jokesCount: stats.jokes,
         discussionsCount: stats.discussions,
+        positiveCount: stats.positive,
+        negativeCount: stats.negative,
+        neutralCount: stats.neutral,
+        spamCount: stats.spam,
         topWords,
+        topTopics: topicSummary.topics,
+        aiSummary: topicSummary.summary,
+        isAiAnalyzed: savedComments.some(c => c.isAiAnalyzed),
       });
 
       // Build Trie for fast search
@@ -75,6 +85,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         video,
         analysis,
         message: "Analysis completed successfully"
+      });
+      
+      console.log('Analysis response sent:', {
+        videoId: video.id,
+        videoTitle: video.title,
+        analysisId: analysis.id,
+        totalComments: analysis.totalComments,
+        questionsCount: analysis.questionsCount,
+        jokesCount: analysis.jokesCount,
+        discussionsCount: analysis.discussionsCount
       });
     } catch (error) {
       console.error("Analysis error:", error);
@@ -112,7 +132,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Search comments
   app.post("/api/search", async (req, res) => {
     try {
-      const { videoId, query, category, sortBy, page, limit } = searchCommentsSchema.parse(req.body);
+      const { videoId, query, category, sentiment, sortBy, page, limit } = searchCommentsSchema.parse(req.body);
       
       let comments = await storage.getCommentsByVideoId(videoId);
       
@@ -137,19 +157,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
         comments = comments.filter(comment => comment.category === category);
       }
 
+      // Filter by sentiment
+      if (sentiment && sentiment !== 'all') {
+        comments = comments.filter(comment => comment.sentiment === sentiment);
+      }
+
       // Sort comments
       switch (sortBy) {
         case 'newest':
-          comments.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
+          comments.sort((a, b) => {
+            const dateA = a.publishedAt instanceof Date ? a.publishedAt : new Date(a.publishedAt);
+            const dateB = b.publishedAt instanceof Date ? b.publishedAt : new Date(b.publishedAt);
+            return dateB.getTime() - dateA.getTime();
+          });
           break;
         case 'oldest':
-          comments.sort((a, b) => a.publishedAt.getTime() - b.publishedAt.getTime());
+          comments.sort((a, b) => {
+            const dateA = a.publishedAt instanceof Date ? a.publishedAt : new Date(a.publishedAt);
+            const dateB = b.publishedAt instanceof Date ? b.publishedAt : new Date(b.publishedAt);
+            return dateA.getTime() - dateB.getTime();
+          });
           break;
         case 'likes':
           comments.sort((a, b) => (b.likeCount || 0) - (a.likeCount || 0));
           break;
         case 'replies':
           comments.sort((a, b) => (b.replyCount || 0) - (a.replyCount || 0));
+          break;
+        case 'confidence':
+          comments.sort((a, b) => (b.aiConfidence || 0) - (a.aiConfidence || 0));
           break;
       }
 
@@ -188,10 +224,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Sort comments
       switch (sortBy) {
         case 'newest':
-          comments.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
+          comments.sort((a, b) => {
+            const dateA = a.publishedAt instanceof Date ? a.publishedAt : new Date(a.publishedAt);
+            const dateB = b.publishedAt instanceof Date ? b.publishedAt : new Date(b.publishedAt);
+            return dateB.getTime() - dateA.getTime();
+          });
           break;
         case 'oldest':
-          comments.sort((a, b) => a.publishedAt.getTime() - b.publishedAt.getTime());
+          comments.sort((a, b) => {
+            const dateA = a.publishedAt instanceof Date ? a.publishedAt : new Date(a.publishedAt);
+            const dateB = b.publishedAt instanceof Date ? b.publishedAt : new Date(b.publishedAt);
+            return dateA.getTime() - dateB.getTime();
+          });
           break;
         case 'likes':
           comments.sort((a, b) => (b.likeCount || 0) - (a.likeCount || 0));
@@ -222,6 +266,83 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Get questions error:", error);
       res.status(500).json({ message: "Failed to retrieve questions" });
+    }
+  });
+
+  // Re-analyze existing video with AI
+  app.post("/api/video/:videoId/reanalyze", async (req, res) => {
+    try {
+      const { videoId } = req.params;
+      
+      const video = await storage.getVideo(videoId);
+      if (!video) {
+        return res.status(404).json({ message: "Video not found" });
+      }
+
+      const existingComments = await storage.getCommentsByVideoId(videoId);
+      if (existingComments.length === 0) {
+        return res.status(400).json({ message: "No comments found for this video" });
+      }
+
+      console.log(`Re-analyzing ${existingComments.length} comments with AI...`);
+
+      // Transform existing comments to the format needed for AI analysis
+      const commentsForReanalysis = existingComments.map(comment => ({
+        id: comment.id,
+        authorDisplayName: comment.authorDisplayName,
+        authorProfileImageUrl: comment.authorProfileImageUrl,
+        textDisplay: comment.textDisplay,
+        textOriginal: comment.textOriginal,
+        likeCount: comment.likeCount || 0,
+        replyCount: comment.replyCount || 0,
+        publishedAt: comment.publishedAt,
+        updatedAt: comment.updatedAt,
+        parentId: comment.parentId,
+      }));
+
+      // Analyze with AI
+      const reanalyzedComments = await analyzer.categorizeCommentsWithAI(commentsForReanalysis);
+      const commentsWithVideoId = reanalyzedComments.map(comment => ({
+        ...comment,
+        videoId,
+      }));
+
+      // Store updated comments (this will overwrite existing ones in memory storage)
+      const savedComments = await storage.createComments(commentsWithVideoId);
+
+      // Generate updated analysis
+      const stats = analyzer.generateAnalysisStats(savedComments);
+      const topWords = analyzer.extractTopWords(savedComments, 20);
+      const topicSummary = await analyzer.generateTopicSummary(savedComments);
+
+      const analysis = await storage.createAnalysis({
+        videoId: video.id,
+        totalComments: stats.total,
+        questionsCount: stats.questions,
+        jokesCount: stats.jokes,
+        discussionsCount: stats.discussions,
+        positiveCount: stats.positive,
+        negativeCount: stats.negative,
+        neutralCount: stats.neutral,
+        spamCount: stats.spam,
+        topWords,
+        topTopics: topicSummary.topics,
+        aiSummary: topicSummary.summary,
+        isAiAnalyzed: savedComments.some(c => c.isAiAnalyzed),
+      });
+
+      res.json({
+        video,
+        analysis,
+        aiAnalyzedCount: savedComments.filter(c => c.isAiAnalyzed).length,
+        totalComments: savedComments.length,
+        message: "Re-analysis completed successfully"
+      });
+    } catch (error) {
+      console.error("Re-analysis error:", error);
+      res.status(500).json({ 
+        message: error instanceof Error ? error.message : "Re-analysis failed" 
+      });
     }
   });
 

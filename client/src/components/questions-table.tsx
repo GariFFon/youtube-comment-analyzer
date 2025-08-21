@@ -59,9 +59,16 @@ export function QuestionsTable({ videoId }: QuestionsTableProps) {
     enabled: !!videoId,
   });
 
-  const formatTimeAgo = (date: Date) => {
+  const formatTimeAgo = (date: Date | string | null) => {
+    if (!date) return 'Unknown';
+    
+    const dateObj = date instanceof Date ? date : new Date(date);
+    
+    // Check if the date is valid
+    if (isNaN(dateObj.getTime())) return 'Invalid date';
+    
     const now = new Date();
-    const diffInSeconds = Math.floor((now.getTime() - new Date(date).getTime()) / 1000);
+    const diffInSeconds = Math.floor((now.getTime() - dateObj.getTime()) / 1000);
     
     if (diffInSeconds < 60) return 'Just now';
     if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;

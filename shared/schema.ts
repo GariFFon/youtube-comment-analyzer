@@ -30,7 +30,12 @@ export const comments = pgTable("comments", {
   publishedAt: timestamp("published_at").notNull(),
   updatedAt: timestamp("updated_at"),
   parentId: varchar("parent_id"),
-  category: text("category").notNull(), // 'question', 'joke', 'discussion'
+  category: text("category").notNull(), // 'question', 'joke', 'discussion', 'positive', 'negative', 'neutral', 'spam'
+  sentiment: text("sentiment"), // 'positive', 'negative', 'neutral'
+  topics: jsonb("topics").$type<string[]>(),
+  aiConfidence: integer("ai_confidence"), // 0-100
+  aiReasoning: text("ai_reasoning"),
+  isAiAnalyzed: boolean("is_ai_analyzed").default(false),
 });
 
 export const analyses = pgTable("analyses", {
@@ -40,7 +45,14 @@ export const analyses = pgTable("analyses", {
   questionsCount: integer("questions_count").notNull(),
   jokesCount: integer("jokes_count").notNull(),
   discussionsCount: integer("discussions_count").notNull(),
+  positiveCount: integer("positive_count").default(0),
+  negativeCount: integer("negative_count").default(0),
+  neutralCount: integer("neutral_count").default(0),
+  spamCount: integer("spam_count").default(0),
   topWords: jsonb("top_words").$type<Array<{word: string, count: number}>>().notNull(),
+  topTopics: jsonb("top_topics").$type<string[]>(),
+  aiSummary: text("ai_summary"),
+  isAiAnalyzed: boolean("is_ai_analyzed").default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -75,8 +87,9 @@ export const analyzeVideoSchema = z.object({
 export const searchCommentsSchema = z.object({
   videoId: z.string(),
   query: z.string().optional(),
-  category: z.enum(['all', 'question', 'joke', 'discussion']).default('all'),
-  sortBy: z.enum(['newest', 'oldest', 'likes', 'replies']).default('newest'),
+  category: z.enum(['all', 'question', 'joke', 'discussion', 'positive', 'negative', 'neutral', 'spam']).default('all'),
+  sentiment: z.enum(['all', 'positive', 'negative', 'neutral']).default('all'),
+  sortBy: z.enum(['newest', 'oldest', 'likes', 'replies', 'confidence']).default('newest'),
   page: z.number().int().min(1).default(1),
   limit: z.number().int().min(1).max(100).default(10),
 });

@@ -54,7 +54,8 @@ export class YouTubeService {
   constructor() {
     this.apiKey = process.env.YOUTUBE_API_KEY || process.env.GOOGLE_API_KEY || '';
     if (!this.apiKey) {
-      throw new Error('YouTube API key is required. Set YOUTUBE_API_KEY or GOOGLE_API_KEY environment variable.');
+      console.error('YouTube API key is required. Set YOUTUBE_API_KEY or GOOGLE_API_KEY environment variable.');
+      console.error('Current environment variables:', Object.keys(process.env).filter(k => k.includes('API')));
     }
   }
 

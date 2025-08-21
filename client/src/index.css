@@ -4,44 +4,74 @@
 @tailwind utilities;
 
 :root {
-  --background: hsl(0 0% 100%);
-  --foreground: hsl(210 25% 7.8431%);
-  --card: hsl(180 6.6667% 97.0588%);
-  --card-foreground: hsl(210 25% 7.8431%);
+  /* YouTube Brand Colors */
+  --youtube-red: #ff0000;
+  --youtube-red-dark: #cc0000;
+  --youtube-black: #0f0f0f;
+  --youtube-white: #ffffff;
+  --youtube-gray-100: #f9f9f9;
+  --youtube-gray-200: #f1f1f1;
+  --youtube-gray-300: #e5e5e5;
+  --youtube-gray-400: #c6c6c6;
+  --youtube-gray-600: #606060;
+  --youtube-gray-800: #373737;
+  --youtube-gray-900: #0f0f0f;
+  
+  /* Base Colors */
+  --background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+  --background-solid: hsl(0 0% 98%);
+  --foreground: hsl(0 0% 9%);
+  --card: linear-gradient(145deg, #ffffff 0%, #fafafa 100%);
+  --card-solid: hsl(0 0% 100%);
+  --card-foreground: hsl(0 0% 9%);
   --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(210 25% 7.8431%);
-  --primary: hsl(210 81% 38%);
+  --popover-foreground: hsl(0 0% 9%);
+  
+  /* YouTube-inspired Primary Colors */
+  --primary: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+  --primary-solid: #ff0000;
   --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(210 9% 26%);
-  --secondary-foreground: hsl(0 0% 100%);
-  --muted: hsl(240 1.9608% 90%);
-  --muted-foreground: hsl(210 25% 7.8431%);
-  --accent: hsl(14 91% 55%);
+  --primary-hover: #e60000;
+  
+  /* Secondary YouTube Colors */
+  --secondary: linear-gradient(135deg, #f1f1f1 0%, #e5e5e5 100%);
+  --secondary-solid: hsl(0 0% 95%);
+  --secondary-foreground: hsl(0 0% 9%);
+  
+  --muted: hsl(0 0% 96%);
+  --muted-foreground: hsl(0 0% 45%);
+  
+  /* YouTube Accent Colors */
+  --accent: linear-gradient(135deg, #ff4444 0%, #ff0000 100%);
+  --accent-solid: #ff4444;
   --accent-foreground: hsl(0 0% 100%);
-  --success: hsl(123 38% 50%);
+  
+  --success: linear-gradient(135deg, #00d04a 0%, #00c441 100%);
+  --success-solid: #00d04a;
   --success-foreground: hsl(0 0% 100%);
-  --warning: hsl(36 100% 56%);
+  
+  --warning: linear-gradient(135deg, #ffb800 0%, #ff9500 100%);
+  --warning-solid: #ffb800;
   --warning-foreground: hsl(0 0% 100%);
-  --error: hsl(4 90% 58%);
+  
+  --error: linear-gradient(135deg, #ff4444 0%, #ff0000 100%);
+  --error-solid: #ff4444;
   --error-foreground: hsl(0 0% 100%);
-  --destructive: hsl(356.3033 90.5579% 54.3137%);
+  
+  --destructive: linear-gradient(135deg, #ff4444 0%, #ff0000 100%);
+  --destructive-solid: #ff4444;
   --destructive-foreground: hsl(0 0% 100%);
-  --border: hsl(201.4286 30.4348% 90.9804%);
-  --input: hsl(200 23.0769% 97.4510%);
-  --ring: hsl(210 81% 38%);
-  --chart-1: hsl(210 81% 38%);
-  --chart-2: hsl(159.7826 100% 36.0784%);
-  --chart-3: hsl(42.0290 92.8251% 56.2745%);
-  --chart-4: hsl(147.1429 78.5047% 41.9608%);
-  --chart-5: hsl(341.4894 75.2000% 50.9804%);
-  --sidebar: hsl(180 6.6667% 97.0588%);
-  --sidebar-foreground: hsl(210 25% 7.8431%);
-  --sidebar-primary: hsl(210 81% 38%);
-  --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(211.5789 51.3514% 92.7451%);
-  --sidebar-accent-foreground: hsl(210 81% 38%);
-  --sidebar-border: hsl(205.0000 25.0000% 90.5882%);
-  --sidebar-ring: hsl(210 81% 38%);
+  
+  --border: hsl(0 0% 89%);
+  --input: hsl(0 0% 98%);
+  --ring: var(--primary-solid);
+  
+  /* YouTube Chart Colors */
+  --chart-1: #ff0000;
+  --chart-2: #ff4444;
+  --chart-3: #ff6666;
+  --chart-4: #ff8888;
+  --chart-5: #ffaaaa;
   --font-sans: Inter, system-ui, sans-serif;
   --font-serif: Georgia, serif;
   --font-mono: Menlo, monospace;
@@ -59,38 +89,56 @@
 }
 
 .dark {
-  --background: hsl(0 0% 0%);
-  --foreground: hsl(200 6.6667% 91.1765%);
-  --card: hsl(228 9.8039% 10%);
-  --card-foreground: hsl(0 0% 85.0980%);
-  --popover: hsl(0 0% 0%);
-  --popover-foreground: hsl(200 6.6667% 91.1765%);
-  --primary: hsl(210 81% 52%);
+  /* Dark Mode YouTube Colors */
+  --background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+  --background-solid: #0f0f0f;
+  --foreground: hsl(0 0% 95%);
+  --card: linear-gradient(145deg, #181818 0%, #1f1f1f 100%);
+  --card-solid: #181818;
+  --card-foreground: hsl(0 0% 95%);
+  --popover: #0f0f0f;
+  --popover-foreground: hsl(0 0% 95%);
+  
+  /* Dark Mode Primary */
+  --primary: linear-gradient(135deg, #ff0000 0%, #e60000 100%);
+  --primary-solid: #ff0000;
   --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(195.0000 15.3846% 94.9020%);
-  --secondary-foreground: hsl(210 25% 7.8431%);
-  --muted: hsl(0 0% 9.4118%);
-  --muted-foreground: hsl(210 3.3898% 46.2745%);
-  --accent: hsl(14 91% 55%);
+  --primary-hover: #ff1a1a;
+  
+  --secondary: linear-gradient(135deg, #373737 0%, #2f2f2f 100%);
+  --secondary-solid: #373737;
+  --secondary-foreground: hsl(0 0% 95%);
+  
+  --muted: #262626;
+  --muted-foreground: hsl(0 0% 65%);
+  
+  --accent: linear-gradient(135deg, #ff4444 0%, #ff0000 100%);
+  --accent-solid: #ff4444;
   --accent-foreground: hsl(0 0% 100%);
-  --destructive: hsl(356.3033 90.5579% 54.3137%);
+  
+  --destructive: linear-gradient(135deg, #ff4444 0%, #ff0000 100%);
+  --destructive-solid: #ff4444;
   --destructive-foreground: hsl(0 0% 100%);
-  --border: hsl(210 5.2632% 14.9020%);
-  --input: hsl(207.6923 27.6596% 18.4314%);
-  --ring: hsl(210 81% 52%);
-  --chart-1: hsl(210 81% 52%);
-  --chart-2: hsl(159.7826 100% 36.0784%);
-  --chart-3: hsl(42.0290 92.8251% 56.2745%);
-  --chart-4: hsl(147.1429 78.5047% 41.9608%);
-  --chart-5: hsl(341.4894 75.2000% 50.9804%);
-  --sidebar: hsl(228 9.8039% 10%);
-  --sidebar-foreground: hsl(0 0% 85.0980%);
-  --sidebar-primary: hsl(210 81% 52%);
+  
+  --border: #303030;
+  --input: #262626;
+  --ring: var(--primary-solid);
+  
+  /* Dark Mode Chart Colors */
+  --chart-1: #ff0000;
+  --chart-2: #ff4444;
+  --chart-3: #ff6666;
+  --chart-4: #ff8888;
+  --chart-5: #ffaaaa;
+  
+  --sidebar: #181818;
+  --sidebar-foreground: hsl(0 0% 95%);
+  --sidebar-primary: #ff0000;
   --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(205.7143 70% 7.8431%);
-  --sidebar-accent-foreground: hsl(210 81% 52%);
-  --sidebar-border: hsl(205.7143 15.7895% 26.0784%);
-  --sidebar-ring: hsl(210 81% 52%);
+  --sidebar-accent: #262626;
+  --sidebar-accent-foreground: #ff0000;
+  --sidebar-border: #303030;
+  --sidebar-ring: #ff0000;
   --font-sans: Inter, system-ui, sans-serif;
   --font-serif: Georgia, serif;
   --font-mono: Menlo, monospace;
@@ -111,13 +159,401 @@
   }
 
   body {
-    @apply font-sans antialiased bg-gray-50 text-foreground;
+    @apply font-sans antialiased text-foreground;
+    background: var(--background-solid);
   }
 
   .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+}
+
+@layer utilities {
+  /* YouTube Gradient Backgrounds */
+  .bg-youtube-gradient {
+    background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+  }
+  
+  .bg-youtube-light-gradient {
+    background: linear-gradient(135deg, #ff4444 0%, #ff0000 100%);
+  }
+  
+  .bg-youtube-dark-gradient {
+    background: linear-gradient(135deg, #cc0000 0%, #990000 100%);
+  }
+  
+  .bg-hero-gradient {
+    background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
+  }
+  
+  .bg-card-gradient {
+    background: linear-gradient(145deg, #ffffff 0%, #fafafa 100%);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+  
+  .bg-header-gradient {
+    background: linear-gradient(90deg, #ffffff 0%, #f8f9fa 100%);
+    backdrop-filter: blur(10px);
+  }
+  
+  .dark .bg-hero-gradient {
+    background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+  }
+  
+  .dark .bg-card-gradient {
+    background: linear-gradient(145deg, #181818 0%, #1f1f1f 100%);
+    box-shadow: 0 4px 6px -1px rgba(255, 255, 255, 0.05), 0 2px 4px -1px rgba(255, 255, 255, 0.03);
+  }
+  
+  .dark .bg-header-gradient {
+    background: linear-gradient(90deg, #0f0f0f 0%, #181818 100%);
+  }
+  
+  /* YouTube Button Styles */
+  .btn-youtube {
+    background: var(--primary);
+    color: white;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(255, 0, 0, 0.2);
+  }
+  
+  .btn-youtube:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(255, 0, 0, 0.3);
+  }
+  
+  /* Animated Gradient Text */
+  .text-youtube-gradient {
+    background: linear-gradient(135deg, #ff0000, #ff4444, #ff0000);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradient-shift 3s ease infinite;
+  }
+  
+  @keyframes gradient-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  
+  /* Glassmorphism Effect */
+  .glass {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .dark .glass {
+    background: rgba(24, 24, 24, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  /* YouTube Background Patterns */
+  .youtube-pattern {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .youtube-pattern::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      radial-gradient(circle at 20% 50%, rgba(255, 0, 0, 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(255, 68, 68, 0.02) 0%, transparent 50%),
+      radial-gradient(circle at 40% 80%, rgba(255, 0, 0, 0.02) 0%, transparent 50%);
+    animation: float-pattern 20s ease-in-out infinite;
+    pointer-events: none;
+  }
+  
+  .dark .youtube-pattern::before {
+    background-image: 
+      radial-gradient(circle at 20% 50%, rgba(255, 0, 0, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(255, 68, 68, 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 40% 80%, rgba(255, 0, 0, 0.03) 0%, transparent 50%);
+  }
+  
+  @keyframes float-pattern {
+    0%, 100% { transform: translateY(0px) scale(1); }
+    50% { transform: translateY(-20px) scale(1.02); }
+  }
+  
+  /* Floating Play Icons */
+  .floating-play-icons {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  
+  .play-icon {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    background: rgba(255, 0, 0, 0.1);
+    border-radius: 50%;
+    animation: float-up 15s infinite linear;
+  }
+  
+  .play-icon::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 55%;
+    transform: translate(-50%, -50%);
+    width: 0;
+    height: 0;
+    border-left: 6px solid rgba(255, 0, 0, 0.3);
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+  }
+  
+  .play-icon:nth-child(1) { left: 10%; animation-delay: 0s; animation-duration: 20s; }
+  .play-icon:nth-child(2) { left: 20%; animation-delay: 2s; animation-duration: 18s; }
+  .play-icon:nth-child(3) { left: 30%; animation-delay: 4s; animation-duration: 22s; }
+  .play-icon:nth-child(4) { left: 40%; animation-delay: 6s; animation-duration: 16s; }
+  .play-icon:nth-child(5) { left: 50%; animation-delay: 8s; animation-duration: 24s; }
+  .play-icon:nth-child(6) { left: 60%; animation-delay: 10s; animation-duration: 19s; }
+  .play-icon:nth-child(7) { left: 70%; animation-delay: 12s; animation-duration: 21s; }
+  .play-icon:nth-child(8) { left: 80%; animation-delay: 14s; animation-duration: 17s; }
+  .play-icon:nth-child(9) { left: 90%; animation-delay: 16s; animation-duration: 23s; }
+  
+  @keyframes float-up {
+    0% { 
+      transform: translateY(100vh) scale(0);
+      opacity: 0;
+    }
+    10% {
+      opacity: 1;
+      transform: translateY(90vh) scale(1);
+    }
+    90% {
+      opacity: 1;
+      transform: translateY(-10vh) scale(1);
+    }
+    100% { 
+      transform: translateY(-20vh) scale(0);
+      opacity: 0;
+    }
+  }
+  
+  /* YouTube Grid Pattern */
+  .youtube-grid {
+    position: relative;
+  }
+  
+  .youtube-grid::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      linear-gradient(rgba(255, 0, 0, 0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 0, 0, 0.02) 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: grid-move 30s linear infinite;
+    pointer-events: none;
+  }
+  
+  .dark .youtube-grid::after {
+    background-image: 
+      linear-gradient(rgba(255, 0, 0, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 0, 0, 0.04) 1px, transparent 1px);
+  }
+  
+  @keyframes grid-move {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(50px, 50px); }
+  }
+  
+  /* Floating Video Thumbnails */
+  .floating-thumbnails {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  
+  .thumbnail {
+    position: absolute;
+    width: 80px;
+    height: 45px;
+    background: linear-gradient(135deg, rgba(255, 0, 0, 0.1), rgba(255, 68, 68, 0.05));
+    border-radius: 8px;
+    border: 1px solid rgba(255, 0, 0, 0.1);
+    animation: float-diagonal 25s infinite linear;
+  }
+  
+  .thumbnail::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 0;
+    height: 0;
+    border-left: 8px solid rgba(255, 0, 0, 0.3);
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+  }
+  
+  .thumbnail:nth-child(1) { top: 10%; right: -100px; animation-delay: 0s; }
+  .thumbnail:nth-child(2) { top: 30%; right: -100px; animation-delay: 5s; }
+  .thumbnail:nth-child(3) { top: 50%; right: -100px; animation-delay: 10s; }
+  .thumbnail:nth-child(4) { top: 70%; right: -100px; animation-delay: 15s; }
+  .thumbnail:nth-child(5) { top: 90%; right: -100px; animation-delay: 20s; }
+  
+  @keyframes float-diagonal {
+    0% { 
+      transform: translateX(0) translateY(0) rotate(0deg);
+      opacity: 0;
+    }
+    10% {
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
+    }
+    100% { 
+      transform: translateX(-120vw) translateY(-50px) rotate(5deg);
+      opacity: 0;
+    }
+  }
+  
+  /* Pulse Animation for YouTube Elements */
+  .youtube-pulse {
+    animation: youtube-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  @keyframes youtube-pulse {
+    0%, 100% {
+      box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7);
+    }
+    70% {
+      box-shadow: 0 0 0 10px rgba(255, 0, 0, 0);
+    }
+  }
+  
+  /* Subscriber Counter Animation */
+  .counter-animation {
+    animation: counter-up 3s ease-out;
+  }
+  
+  @keyframes counter-up {
+    0% { 
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    100% { 
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  /* Video Loading Skeleton */
+  .video-skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading-shimmer 2s infinite;
+  }
+  
+  .dark .video-skeleton {
+    background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+    background-size: 200% 100%;
+  }
+  
+  @keyframes loading-shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  
+  /* Additional YouTube Animations */
+  @keyframes fadeInFloat {
+    0% { 
+      opacity: 0; 
+      transform: translateY(20px) scale(0.8); 
+    }
+    15% { 
+      opacity: 0.8; 
+      transform: translateY(0) scale(1); 
+    }
+    85% { 
+      opacity: 0.8; 
+      transform: translateY(0) scale(1); 
+    }
+    100% { 
+      opacity: 0; 
+      transform: translateY(-20px) scale(0.8); 
+    }
+  }
+  
+  @keyframes progressBar {
+    0% { width: 0%; }
+    50% { width: 75%; }
+    100% { width: 100%; }
+  }
+  
+  @keyframes slideInRight {
+    0% { 
+      transform: translateX(100px); 
+      opacity: 0; 
+    }
+    25% { 
+      transform: translateX(0); 
+      opacity: 1; 
+    }
+    75% { 
+      transform: translateX(0); 
+      opacity: 1; 
+    }
+    100% { 
+      transform: translateX(-100px); 
+      opacity: 0; 
+    }
+  }
+  
+  @keyframes bounce-subtle {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+  
+  @keyframes glow-pulse {
+    0%, 100% { box-shadow: 0 0 5px rgba(255, 0, 0, 0.3); }
+    50% { box-shadow: 0 0 20px rgba(255, 0, 0, 0.6), 0 0 30px rgba(255, 0, 0, 0.4); }
+  }
+  
+  @keyframes scanlines {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100vh); }
+  }
+  
+  /* Additional Utility Classes */
+  .bg-gradient-radial {
+    background: radial-gradient(circle, var(--tw-gradient-stops));
+  }
+  
+  .delay-4000ms {
+    animation-delay: 4s;
+  }
+  
+  .delay-2000ms {
+    animation-delay: 2s;
   }
 }

@@ -1,16 +1,26 @@
-# YouTube Comments Analyzer
+# YouTube Comments Analyzer 🚀
 
-A comprehensive web application that fetches comments from YouTube videos and categorizes them into Questions, Jokes, and Discussions with advanced analytics and search capabilities.
+A beautiful, comprehensive web application that fetches comments from YouTube videos and categorizes them into Questions, Jokes, and Discussions with advanced analytics and search capabilities. Features a stunning YouTube-themed design with gradients and modern UI elements.
 
-## Features
+## ✨ Features
 
 - **Real-time Comment Analysis**: Fetch comments directly from YouTube videos using the YouTube Data API
 - **Smart Categorization**: Automatically categorize comments into Questions, Jokes, and Discussions
 - **Advanced Search**: Fast prefix-based search using Trie data structure implementation
 - **Word Analytics**: Top word extraction with frequency analysis
-- **Data Visualization**: Interactive charts showing comment distribution and trends
-- **Professional UI**: Modern, responsive design with real-time progress indicators
+- **Interactive Data Visualization**: Beautiful charts with YouTube-themed colors showing comment distribution and trends
+- **Modern YouTube-Themed UI**: Stunning gradients, animations, and responsive design inspired by YouTube's brand
+- **Real-time Progress**: Live progress indicators with smooth animations
 - **Export Functionality**: Export analysis results for further use
+- **Dark Mode Support**: Seamless dark/light theme switching
+
+## 🎨 Design Features
+
+- **YouTube Brand Colors**: Authentic red gradients (#FF0000) throughout the interface
+- **Gradient Backgrounds**: Beautiful card gradients and animated elements
+- **Glassmorphism Effects**: Modern frosted glass effects and backdrop blur
+- **Micro-interactions**: Smooth hover effects, button animations, and loading states
+- **Responsive Layout**: Perfect on desktop, tablet, and mobile devices
 
 ## Tech Stack
 
