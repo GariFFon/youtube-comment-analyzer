@@ -1,36 +1,52 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { MessageCircle, HelpCircle, Laugh, Users } from "lucide-react";
+import { MessageCircle, HelpCircle, Laugh, Users, AlertTriangle, CheckCircle } from "lucide-react";
 import type { Analysis } from "@shared/schema";
 
 interface StatisticsOverviewProps {
   analysis: Analysis;
+  video?: {
+    commentCount: number | null;
+  };
+  fetchingStats?: {
+    reportedCount: number;
+    fetchedCount: number;
+    missingCount: number;
+    fetchSuccess: boolean;
+  };
 }
 
-export function StatisticsOverview({ analysis }: StatisticsOverviewProps) {
+export function StatisticsOverview({ analysis, video, fetchingStats }: StatisticsOverviewProps) {
+  const reportedComments = video?.commentCount || 0;
+  const analyzedComments = analysis.totalComments;
+  const missingComments = fetchingStats?.missingCount || Math.max(0, reportedComments - analyzedComments);
+  const fetchSuccess = missingComments === 0;
+
   const stats = [
     {
       label: "Total Comments",
       value: analysis.totalComments.toLocaleString(),
       icon: MessageCircle,
-      change: "+12%",
+      subtitle: reportedComments > 0 && missingComments > 0 
+        ? `${missingComments} comments not fetched` 
+        : "From analyzed comments"
     },
     {
       label: "Questions",
       value: analysis.questionsCount.toLocaleString(),
       icon: HelpCircle,
-      change: "+8%",
+      subtitle: "From analyzed comments"
     },
     {
       label: "Jokes",
       value: analysis.jokesCount.toLocaleString(),
       icon: Laugh,
-      change: "+15%",
+      subtitle: "From analyzed comments"
     },
     {
       label: "Discussions",
       value: analysis.discussionsCount.toLocaleString(),
       icon: Users,
-      change: "+5%",
+      subtitle: "From analyzed comments"
     },
   ];
 
@@ -58,8 +74,7 @@ export function StatisticsOverview({ analysis }: StatisticsOverviewProps) {
                   </div>
                   <div className="text-lg font-medium text-white">{stat.value}</div>
                   <div className="flex items-center text-xs text-gray-400">
-                    <span className="text-green-400">{stat.change}</span>
-                    <span className="ml-1">vs previous period</span>
+                    <span className="text-blue-400">{stat.subtitle}</span>
                   </div>
                 </div>
               );
@@ -81,6 +96,58 @@ export function StatisticsOverview({ analysis }: StatisticsOverviewProps) {
             </div>
           </div>
         </div>
+
+        {/* Comment Fetching Status - Integrated into YouTube Studio style */}
+        {reportedComments > 0 && (
+          <div className="p-4 border-t border-gray-700">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                {fetchSuccess ? (
+                  <CheckCircle className="text-green-500 w-4 h-4" />
+                ) : (
+                  <AlertTriangle className="text-amber-500 w-4 h-4" />
+                )}
+                <h3 className="text-sm font-medium text-gray-300">Comment Fetching Status</h3>
+              </div>
+              <div className={`text-xs px-2 py-1 rounded ${
+                fetchSuccess ? 'bg-green-900/50 text-green-400' : 'bg-amber-900/50 text-amber-400'
+              }`}>
+                {Math.round((analyzedComments / reportedComments) * 100)}% Success
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <p className="text-sm text-white">
+                {fetchSuccess ? (
+                  "✅ All comments successfully fetched and analyzed!"
+                ) : (
+                  `⚠️ ${missingComments} comments could not be fetched`
+                )}
+              </p>
+              <div className="flex items-center gap-4 text-xs text-gray-400">
+                <span>📺 Reported: {reportedComments.toLocaleString()}</span>
+                <span>💾 Fetched: {analyzedComments.toLocaleString()}</span>
+                {!fetchSuccess && (
+                  <span>❌ Missing: {missingComments.toLocaleString()}</span>
+                )}
+              </div>
+              
+              {!fetchSuccess && (
+                <div className="mt-3 p-3 bg-amber-900/20 rounded-lg">
+                  <p className="text-xs text-amber-300 mb-2">
+                    📋 Possible reasons for missing comments:
+                  </p>
+                  <ul className="text-xs text-amber-400 space-y-1">
+                    <li>• Some comments may be private or deleted</li>
+                    <li>• Comments on replies might not be fully accessible</li>
+                    <li>• YouTube API pagination limits</li>
+                    <li>• Rate limiting or API quota restrictions</li>
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

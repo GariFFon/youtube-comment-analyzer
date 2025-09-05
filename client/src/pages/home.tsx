@@ -14,11 +14,13 @@ export default function Home() {
   const [currentVideo, setCurrentVideo] = useState<Video | null>(null);
   const [currentAnalysis, setCurrentAnalysis] = useState<Analysis | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [fetchingStats, setFetchingStats] = useState<any>(null);
 
-  const handleAnalysisComplete = (video: Video, analysis: Analysis) => {
-    console.log('Analysis complete callback called:', { video, analysis });
+  const handleAnalysisComplete = (video: Video, analysis: Analysis, stats?: any) => {
+    console.log('Analysis complete callback called:', { video, analysis, stats });
     setCurrentVideo(video);
     setCurrentAnalysis(analysis);
+    setFetchingStats(stats);
   };
 
   return (
@@ -54,8 +56,12 @@ export default function Home() {
                 {/* Video Info */}
                 <VideoInfo video={currentVideo} />
 
-                {/* Statistics Overview */}
-                <StatisticsOverview analysis={currentAnalysis} />
+                {/* Statistics Overview with fetchingStats */}
+                <StatisticsOverview 
+                  analysis={currentAnalysis} 
+                  video={currentVideo}
+                  fetchingStats={fetchingStats}
+                />
 
                 {/* Charts Section */}
                 <ChartsSection analysis={currentAnalysis} />

@@ -34,7 +34,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Fetch video data from YouTube
-      const { video: videoData, comments: rawComments } = await youtubeService.fetchVideoData(url);
+      const { video: videoData, comments: rawComments, fetchingStats } = await youtubeService.fetchVideoData(url);
       
       // Create or update video
       let video = existingVideo;
@@ -84,7 +84,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({
         video,
         analysis,
-        message: "Analysis completed successfully"
+        fetchingStats,
+        message: fetchingStats.fetchSuccess 
+          ? "Analysis completed successfully - All comments fetched!" 
+          : `Analysis completed - ${fetchingStats.missingCount} comments could not be fetched (${((fetchingStats.missingCount / fetchingStats.reportedCount) * 100).toFixed(1)}% missing)`
       });
       
       console.log('Analysis response sent:', {
@@ -266,6 +269,129 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Get questions error:", error);
       res.status(500).json({ message: "Failed to retrieve questions" });
+    }
+  });
+
+  // Force re-fetch comments for a video (debug endpoint)
+  app.post("/api/video/:videoId/refetch-comments", async (req, res) => {
+    try {
+      const { videoId } = req.params;
+      
+      const video = await storage.getVideo(videoId);
+      if (!video) {
+        return res.status(404).json({ message: "Video not found" });
+      }
+
+      console.log(`🔄 Re-fetching comments for video: ${video.title}`);
+      
+      // Re-fetch comments from YouTube
+      const { comments: newComments, fetchingStats } = await youtubeService.fetchVideoData(video.url);
+      
+      // Transform comments for analysis
+      const commentsForAnalysis = newComments.map(comment => ({
+        id: comment.id,
+        authorDisplayName: comment.authorDisplayName,
+        authorProfileImageUrl: comment.authorProfileImageUrl,
+        textDisplay: comment.textDisplay,
+        textOriginal: comment.textOriginal,
+        likeCount: comment.likeCount || 0,
+        replyCount: comment.replyCount || 0,
+        publishedAt: comment.publishedAt,
+        updatedAt: comment.updatedAt,
+        parentId: comment.parentId,
+      }));
+
+      // Analyze with current analyzer
+      const reanalyzedComments = await analyzer.categorizeCommentsWithAI(commentsForAnalysis);
+      const commentsWithVideoId = reanalyzedComments.map(comment => ({
+        ...comment,
+        videoId,
+      }));
+
+      // Store updated comments
+      const savedComments = await storage.createComments(commentsWithVideoId);
+
+      // Generate updated analysis
+      const stats = analyzer.generateAnalysisStats(savedComments);
+      const topWords = analyzer.extractTopWords(savedComments, 20);
+      const topicSummary = await analyzer.generateTopicSummary(savedComments);
+
+      const analysis = await storage.createAnalysis({
+        videoId: video.id,
+        totalComments: stats.total,
+        questionsCount: stats.questions,
+        jokesCount: stats.jokes,
+        discussionsCount: stats.discussions,
+        positiveCount: stats.positive,
+        negativeCount: stats.negative,
+        neutralCount: stats.neutral,
+        spamCount: stats.spam,
+        topWords,
+        topTopics: topicSummary.topics,
+        aiSummary: topicSummary.summary,
+        isAiAnalyzed: savedComments.some(c => c.isAiAnalyzed),
+      });
+
+      res.json({
+        video,
+        analysis,
+        fetchingStats,
+        newlyFetchedCount: newComments.length,
+        previousCount: video.commentCount,
+        message: `Re-fetching completed! Got ${newComments.length} comments (${fetchingStats.missingCount} still missing)`
+      });
+    } catch (error) {
+      console.error("Re-fetch error:", error);
+      res.status(500).json({ 
+        message: error instanceof Error ? error.message : "Re-fetch failed" 
+      });
+    }
+  });
+
+  // Get comment fetching statistics
+  app.get("/api/video/:videoId/comment-stats", async (req, res) => {
+    try {
+      const { videoId } = req.params;
+      
+      const video = await storage.getVideo(videoId);
+      if (!video) {
+        return res.status(404).json({ message: "Video not found" });
+      }
+
+      const analysis = await storage.getAnalysisByVideoId(videoId);
+      if (!analysis) {
+        return res.status(404).json({ message: "Analysis not found" });
+      }
+
+      const analyzedComments = await storage.getCommentsByVideoId(videoId);
+      
+      // Calculate statistics
+      const reportedTotal = video.commentCount || 0;
+      const fetchedCount = analyzedComments.length;
+      const missingCount = Math.max(0, reportedTotal - fetchedCount);
+      const fetchSuccessRate = reportedTotal > 0 ? ((fetchedCount / reportedTotal) * 100) : 100;
+
+      const stats = {
+        videoTitle: video.title,
+        reportedCommentCount: reportedTotal,
+        fetchedCommentCount: fetchedCount,
+        analyzedCommentCount: analysis.totalComments,
+        missingCommentCount: missingCount,
+        fetchSuccessRate: Math.round(fetchSuccessRate * 100) / 100,
+        isAllCommentsFetched: missingCount === 0,
+        possibleReasons: missingCount > 0 ? [
+          "Some comments may be private or deleted",
+          "Comments on replies might not be fully accessible",
+          "YouTube API pagination limits",
+          "Rate limiting or API quota restrictions",
+          "Comments disabled on some reply threads"
+        ] : []
+      };
+
+      res.json(stats);
+    } catch (error) {
+      console.error("Get comment stats error:", error);
+      res.status(500).json({ message: "Failed to retrieve comment statistics" });
     }
   });
 

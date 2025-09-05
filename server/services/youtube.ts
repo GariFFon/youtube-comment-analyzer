@@ -107,54 +107,90 @@ export class YouTubeService {
   async getVideoComments(videoId: string): Promise<YouTubeComment[]> {
     const comments: YouTubeComment[] = [];
     let nextPageToken: string | undefined;
+    let pageCount = 0;
+
+    console.log(`🔍 Starting to fetch comments for video: ${videoId}`);
 
     do {
-      const url = `${this.baseUrl}/commentThreads?part=snippet,replies&videoId=${videoId}&maxResults=100&order=relevance&key=${this.apiKey}${
+      pageCount++;
+      const url = `${this.baseUrl}/commentThreads?part=snippet,replies&videoId=${videoId}&maxResults=100&order=time&key=${this.apiKey}${
         nextPageToken ? `&pageToken=${nextPageToken}` : ''
       }`;
 
-      const response = await fetch(url);
-      if (!response.ok) {
-        if (response.status === 403) {
-          throw new Error('Comments are disabled for this video or API quota exceeded');
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          if (response.status === 403) {
+            const errorData = await response.json();
+            console.error('API Error:', errorData);
+            throw new Error('Comments are disabled for this video or API quota exceeded');
+          }
+          throw new Error(`YouTube API error: ${response.status} ${response.statusText}`);
         }
-        throw new Error(`YouTube API error: ${response.status} ${response.statusText}`);
-      }
 
-      const data = await response.json();
-      
-      for (const item of data.items || []) {
-        // Add the main comment
-        comments.push({
-          ...item.snippet.topLevelComment,
-          snippet: {
-            ...item.snippet.topLevelComment.snippet,
-            totalReplyCount: item.snippet.totalReplyCount || 0,
-          },
-        });
+        const data = await response.json();
+        
+        if (!data.items || data.items.length === 0) {
+          console.log(`📄 Page ${pageCount}: No more comments found`);
+          break;
+        }
 
-        // Add replies if they exist
-        if (item.replies && item.replies.comments) {
-          for (const reply of item.replies.comments) {
-            comments.push({
-              ...reply,
-              snippet: {
-                ...reply.snippet,
-                parentId: item.snippet.topLevelComment.id,
-              },
-            });
+        let pageComments = 0;
+        
+        for (const item of data.items) {
+          // Add the main comment
+          comments.push({
+            ...item.snippet.topLevelComment,
+            snippet: {
+              ...item.snippet.topLevelComment.snippet,
+              totalReplyCount: item.snippet.totalReplyCount || 0,
+            },
+          });
+          pageComments++;
+
+          // Add replies if they exist
+          if (item.replies && item.replies.comments) {
+            for (const reply of item.replies.comments) {
+              comments.push({
+                ...reply,
+                snippet: {
+                  ...reply.snippet,
+                  parentId: item.snippet.topLevelComment.id,
+                },
+              });
+              pageComments++;
+            }
           }
         }
-      }
 
-      nextPageToken = data.nextPageToken;
-      
-      // Limit to prevent excessive API usage (remove or increase for production)
-      if (comments.length >= 1000) {
-        break;
+        console.log(`📄 Page ${pageCount}: Fetched ${pageComments} comments (Total: ${comments.length})`);
+        nextPageToken = data.nextPageToken;
+        
+        // Add small delay to avoid rate limiting
+        if (nextPageToken) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        
+      } catch (error) {
+        console.error(`❌ Error fetching page ${pageCount}:`, error);
+        // If it's an API error, break the loop
+        if (error instanceof Error && error.message.includes('API')) {
+          break;
+        }
+        // For other errors, continue with next page if we have a token
+        if (!nextPageToken) break;
       }
+      
+      // Log progress for debugging
+      if (pageCount % 5 === 0) {
+        console.log(`📈 Progress: ${comments.length} comments fetched after ${pageCount} pages`);
+      }
+      
+      // Remove artificial limit - fetch all comments
+      // Only break if we hit API limits or no more comments
     } while (nextPageToken);
 
+    console.log(`✅ Comment fetching completed: ${comments.length} total comments from ${pageCount} pages`);
     return comments;
   }
 
@@ -168,6 +204,23 @@ export class YouTubeService {
       this.getVideoDetails(videoId),
       this.getVideoComments(videoId),
     ]);
+
+    // Log comment fetching statistics
+    const reportedCommentCount = videoDetails.commentCount;
+    const fetchedCommentCount = comments.length;
+    
+    console.log(`\n📊 Comment Fetching Statistics:`);
+    console.log(`📺 Video: ${videoDetails.title}`);
+    console.log(`📈 Comments reported by YouTube API: ${reportedCommentCount}`);
+    console.log(`💾 Comments actually fetched: ${fetchedCommentCount}`);
+    
+    if (fetchedCommentCount < reportedCommentCount) {
+      const missingCount = reportedCommentCount - fetchedCommentCount;
+      console.log(`⚠️  Missing comments: ${missingCount} (${((missingCount / reportedCommentCount) * 100).toFixed(1)}%)`);
+      console.log(`📋 Possible reasons: Private comments, deleted comments, API pagination limits, or comments disabled on replies`);
+    } else {
+      console.log(`✅ All available comments fetched successfully!`);
+    }
 
     return {
       video: { ...videoDetails, id: videoId, url },
@@ -183,6 +236,12 @@ export class YouTubeService {
         updatedAt: comment.snippet.updatedAt ? new Date(comment.snippet.updatedAt) : null,
         parentId: comment.snippet.parentId || null,
       })),
+      fetchingStats: {
+        reportedCount: reportedCommentCount,
+        fetchedCount: fetchedCommentCount,
+        missingCount: Math.max(0, reportedCommentCount - fetchedCommentCount),
+        fetchSuccess: fetchedCommentCount >= reportedCommentCount
+      }
     };
   }
 }

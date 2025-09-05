@@ -12,7 +12,7 @@ import { Youtube, Search, Info } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface VideoInputFormProps {
-  onAnalysisComplete: (video: Video, analysis: Analysis) => void;
+  onAnalysisComplete: (video: Video, analysis: Analysis, fetchingStats?: any) => void;
 }
 
 export function VideoInputForm({ onAnalysisComplete }: VideoInputFormProps) {
@@ -39,7 +39,7 @@ export function VideoInputForm({ onAnalysisComplete }: VideoInputFormProps) {
         title: "Analysis Complete",
         description: data.message || "Comments have been analyzed successfully!",
       });
-      onAnalysisComplete(data.video, data.analysis);
+      onAnalysisComplete(data.video, data.analysis, data.fetchingStats);
       form.reset();
       setProgress(0);
     },
