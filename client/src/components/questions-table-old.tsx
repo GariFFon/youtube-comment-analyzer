@@ -112,13 +112,13 @@ export function QuestionsTable({ videoId }: QuestionsTableProps) {
                 <div className="flex items-start space-x-3">
                   <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center flex-shrink-0">
                     <span className="text-white text-xs font-semibold">
-                      {comment.authorDisplayName?.[0] || '?'}
+                      {comment.authorName?.[0] || '?'}
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center space-x-2 mb-1">
                       <span className="text-sm font-medium text-gray-300">
-                        {comment.authorDisplayName || 'Anonymous'}
+                        {comment.authorName || 'Anonymous'}
                       </span>
                       <span className="text-xs text-gray-500">
                         {new Date(comment.publishedAt).toLocaleDateString()}
@@ -134,14 +134,14 @@ export function QuestionsTable({ videoId }: QuestionsTableProps) {
                       )}
                     </div>
                     <p className="text-gray-300 text-sm leading-relaxed">
-                      {comment.textDisplay}
+                      {comment.text}
                     </p>
                     <div className="flex items-center space-x-4 mt-2">
                       <div className="flex items-center space-x-1 text-xs text-gray-500">
                         <ThumbsUp className="w-3 h-3" />
                         <span>{comment.likeCount || 0}</span>
                       </div>
-                      {(comment.replyCount || 0) > 0 && (
+                      {comment.replyCount > 0 && (
                         <div className="flex items-center space-x-1 text-xs text-gray-500">
                           <MessageCircle className="w-3 h-3" />
                           <span>{comment.replyCount} replies</span>
@@ -189,5 +189,150 @@ export function QuestionsTable({ videoId }: QuestionsTableProps) {
         )}
       </div>
     </div>
+  );
+}
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">Newest</SelectItem>
+                <SelectItem value="oldest">Oldest</SelectItem>
+                <SelectItem value="likes">Most Liked</SelectItem>
+                <SelectItem value="replies">Most Replies</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </CardHeader>
+
+      <CardContent>
+        {isLoading ? (
+          <div className="text-center py-8">
+            <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-primary mb-2"></div>
+            <p className="text-gray-500">Loading comments...</p>
+          </div>
+        ) : !data?.comments.length ? (
+          <div className="text-center py-8">
+            <p className="text-gray-500">No comments found</p>
+          </div>
+        ) : (
+          <>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Author</TableHead>
+                    <TableHead>Comment</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead>Time</TableHead>
+                    <TableHead>Likes</TableHead>
+                    <TableHead>Replies</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {data.comments.map((comment) => (
+                    <TableRow key={comment.id} className="hover:bg-gray-50">
+                      <TableCell>
+                        <div className="flex items-center">
+                          <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-xs font-medium text-gray-600 mr-3">
+                            {getInitials(comment.authorDisplayName)}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium text-gray-900 truncate">
+                              {comment.authorDisplayName}
+                            </p>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <p className="text-sm text-gray-900 line-clamp-2 max-w-md">
+                          {comment.textDisplay}
+                        </p>
+                      </TableCell>
+                      <TableCell>
+                        {getCategoryBadge(comment.category)}
+                      </TableCell>
+                      <TableCell className="text-sm text-gray-500">
+                        {formatTimeAgo(comment.publishedAt)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center text-sm text-gray-500">
+                          <ThumbsUp className="h-3 w-3 mr-1" />
+                          {comment.likeCount}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-sm text-gray-500">
+                        {comment.replyCount || 0}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* Pagination */}
+            {data.pagination.total > 0 && (
+              <div className="mt-6 flex items-center justify-between">
+                <div className="text-sm text-gray-500">
+                  Showing <span className="font-medium">{((data.pagination.page - 1) * data.pagination.limit) + 1}</span> to{' '}
+                  <span className="font-medium">
+                    {Math.min(data.pagination.page * data.pagination.limit, data.pagination.total)}
+                  </span> of{' '}
+                  <span className="font-medium">{data.pagination.total}</span> comments
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(prev => prev - 1)}
+                    disabled={!data.pagination.hasPrev}
+                  >
+                    Previous
+                  </Button>
+                  
+                  {/* Page Numbers */}
+                  {Array.from({ length: Math.min(5, data.pagination.totalPages) }, (_, i) => {
+                    const pageNum = i + 1;
+                    return (
+                      <Button
+                        key={pageNum}
+                        variant={pageNum === currentPage ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setCurrentPage(pageNum)}
+                        className="w-10"
+                      >
+                        {pageNum}
+                      </Button>
+                    );
+                  })}
+                  
+                  {data.pagination.totalPages > 5 && (
+                    <>
+                      <span className="text-gray-500">...</span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(data.pagination.totalPages)}
+                        className="w-10"
+                      >
+                        {data.pagination.totalPages}
+                      </Button>
+                    </>
+                  )}
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(prev => prev + 1)}
+                    disabled={!data.pagination.hasNext}
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </CardContent>
+    </Card>
   );
 }

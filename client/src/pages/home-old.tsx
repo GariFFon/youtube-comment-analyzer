@@ -7,7 +7,7 @@ import { QuestionsTable } from "@/components/questions-table";
 import { ExportOptions } from "@/components/export-options";
 import { YouTubeStudioHeader } from "@/components/youtube-studio-header";
 import { YouTubeStudioSidebar } from "@/components/youtube-studio-sidebar";
-import { Upload } from "lucide-react";
+import { Menu, Search, HelpCircle, Settings, Bell, Upload } from "lucide-react";
 import type { Video, Analysis } from "@shared/schema";
 
 export default function Home() {
@@ -67,6 +67,7 @@ export default function Home() {
                 <ExportOptions />
               </div>
             ) : (
+              // Empty State
               <div className="text-center py-16">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-[#1a1a1a] rounded-full mb-6">
                   <Upload className="w-8 h-8 text-gray-400" />

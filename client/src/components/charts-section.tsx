@@ -1,5 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import type { Analysis } from "@shared/schema";
 
 interface ChartsSectionProps {
@@ -25,139 +24,89 @@ export function ChartsSection({ analysis }: ChartsSectionProps) {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-      {/* Category Distribution Chart */}
-      <div className="relative">
-        <div className="absolute inset-0 bg-card-gradient rounded-2xl transform rotate-1"></div>
-        <Card className="relative bg-card-gradient border-0 shadow-xl rounded-2xl overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-amber-500 to-purple-500"></div>
-          <CardHeader className="pb-4">
-            <CardTitle className="text-xl font-bold text-gray-900 dark:text-white flex items-center space-x-2">
-              <div className="w-6 h-6 bg-youtube-gradient rounded-lg flex items-center justify-center">
-                <div className="w-3 h-3 bg-white rounded-full"></div>
+    <div className="mb-8">
+      <h2 className="text-lg font-medium text-white mb-4">Comment Analysis</h2>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Category Distribution */}
+        <div className="bg-[#1a1a1a] rounded-lg border border-gray-700 p-6">
+          <h3 className="text-base font-medium text-white mb-4">Comment Categories</h3>
+          <div className="h-48">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={categoryData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={40}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                  label={({ name, value }) => `${name}: ${calculatePercentage(value)}%`}
+                >
+                  {categoryData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  formatter={(value: number, name: string) => [`${value} comments (${calculatePercentage(value)}%)`, name]}
+                  contentStyle={{
+                    backgroundColor: '#1a1a1a',
+                    border: '1px solid #374151',
+                    borderRadius: '8px',
+                    color: '#fff'
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          
+          <div className="space-y-2 mt-4">
+            {categoryData.map((item) => (
+              <div key={item.name} className="flex items-center justify-between text-sm">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                  <span className="text-gray-300">{item.name}</span>
+                </div>
+                <span className="text-white font-medium">{item.value}</span>
               </div>
-              <span>Comment Categories</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={categoryData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={8}
-                    dataKey="value"
-                  >
-                    {categoryData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    formatter={(value: number) => [value.toLocaleString(), 'Comments']}
-                    contentStyle={{
-                      backgroundColor: '#ffffff',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '12px',
-                      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                    }}
-                  />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="mt-6 grid grid-cols-3 gap-4">
-              <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
-                <div className="w-4 h-4 bg-blue-500 rounded-full mx-auto mb-2"></div>
-                <p className="text-xs font-semibold text-blue-700 dark:text-blue-300 uppercase tracking-wide">Questions</p>
-                <p className="text-lg font-bold text-blue-600 dark:text-blue-400">{calculatePercentage(analysis.questionsCount)}%</p>
-              </div>
-              <div className="text-center p-3 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
-                <div className="w-4 h-4 bg-amber-500 rounded-full mx-auto mb-2"></div>
-                <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 uppercase tracking-wide">Jokes</p>
-                <p className="text-lg font-bold text-amber-600 dark:text-amber-400">{calculatePercentage(analysis.jokesCount)}%</p>
-              </div>
-              <div className="text-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-xl">
-                <div className="w-4 h-4 bg-purple-500 rounded-full mx-auto mb-2"></div>
-                <p className="text-xs font-semibold text-purple-700 dark:text-purple-300 uppercase tracking-wide">Discussions</p>
-                <p className="text-lg font-bold text-purple-600 dark:text-purple-400">{calculatePercentage(analysis.discussionsCount)}%</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            ))}
+          </div>
+        </div>
 
-      {/* Top Keywords Chart */}
-      <div className="relative">
-        <div className="absolute inset-0 bg-card-gradient rounded-2xl transform -rotate-1"></div>
-        <Card className="relative bg-card-gradient border-0 shadow-xl rounded-2xl overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-1 bg-youtube-gradient"></div>
-          <CardHeader className="pb-4">
-            <CardTitle className="text-xl font-bold text-gray-900 dark:text-white flex items-center space-x-2">
-              <div className="w-6 h-6 bg-gradient-to-r from-youtube-500 to-youtube-600 rounded-lg flex items-center justify-center">
-                <div className="w-3 h-3 bg-white rounded transform rotate-45"></div>
-              </div>
-              <span>Top Keywords</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={topWordsData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis 
-                    dataKey="word" 
-                    stroke="#6b7280"
-                    fontSize={12}
-                    fontWeight={500}
-                  />
-                  <YAxis stroke="#6b7280" fontSize={12} fontWeight={500} />
-                  <Tooltip 
-                    formatter={(value: number) => [value.toLocaleString(), 'Occurrences']}
-                    contentStyle={{
-                      backgroundColor: '#ffffff',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '12px',
-                      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                    }}
-                  />
-                  <Bar 
-                    dataKey="count" 
-                    fill="url(#youtubeGradient)"
-                    radius={[6, 6, 0, 0]}
-                  />
-                  <defs>
-                    <linearGradient id="youtubeGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#ff0000" />
-                      <stop offset="100%" stopColor="#cc0000" />
-                    </linearGradient>
-                  </defs>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="mt-6 space-y-3">
-              <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
-                Top 3 Keywords
-              </h4>
-              {(analysis.topWords as Array<{word: string, count: number}>)
-                .slice(0, 3)
-                .map((item, index) => (
-                  <div key={item.word} className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-6 h-6 bg-youtube-gradient rounded-full flex items-center justify-center text-white text-xs font-bold">
-                        {index + 1}
-                      </div>
-                      <span className="font-medium text-gray-700 dark:text-gray-300">{item.word}</span>
-                    </div>
-                    <span className="font-bold text-youtube-500">{item.count.toLocaleString()}</span>
-                  </div>
-                ))}
-            </div>
-          </CardContent>
-        </Card>
+        {/* Top Keywords */}
+        <div className="bg-[#1a1a1a] rounded-lg border border-gray-700 p-6">
+          <h3 className="text-base font-medium text-white mb-4">Top Keywords</h3>
+          <div className="h-48">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={topWordsData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                <XAxis 
+                  dataKey="word" 
+                  stroke="#9ca3af"
+                  fontSize={12}
+                  angle={-45}
+                  textAnchor="end"
+                  height={60}
+                />
+                <YAxis stroke="#9ca3af" fontSize={12} />
+                <Tooltip 
+                  contentStyle={{
+                    backgroundColor: '#1a1a1a',
+                    border: '1px solid #374151',
+                    borderRadius: '8px',
+                    color: '#fff'
+                  }}
+                />
+                <Bar 
+                  dataKey="count" 
+                  fill="#3b82f6"
+                  radius={[2, 2, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
       </div>
     </div>
   );

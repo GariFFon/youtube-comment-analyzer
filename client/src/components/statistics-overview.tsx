@@ -12,70 +12,76 @@ export function StatisticsOverview({ analysis }: StatisticsOverviewProps) {
       label: "Total Comments",
       value: analysis.totalComments.toLocaleString(),
       icon: MessageCircle,
-      color: "youtube",
-      bgColor: "bg-youtube-50 dark:bg-youtube-900/20",
-      iconColor: "text-youtube-500",
+      change: "+12%",
     },
     {
       label: "Questions",
       value: analysis.questionsCount.toLocaleString(),
       icon: HelpCircle,
-      color: "blue",
-      bgColor: "bg-blue-50 dark:bg-blue-900/20",
-      iconColor: "text-blue-500",
+      change: "+8%",
     },
     {
       label: "Jokes",
       value: analysis.jokesCount.toLocaleString(),
       icon: Laugh,
-      color: "amber",
-      bgColor: "bg-amber-50 dark:bg-amber-900/20",
-      iconColor: "text-amber-500",
+      change: "+15%",
     },
     {
       label: "Discussions",
       value: analysis.discussionsCount.toLocaleString(),
       icon: Users,
-      color: "purple",
-      bgColor: "bg-purple-50 dark:bg-purple-900/20",
-      iconColor: "text-purple-500",
+      change: "+5%",
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      {stats.map((stat, index) => {
-        const Icon = stat.icon;
-        return (
-          <div key={stat.label} className="relative group">
-            <div className="absolute inset-0 bg-card-gradient rounded-2xl transform rotate-1 opacity-50 group-hover:rotate-2 transition-transform duration-200"></div>
-            <Card className="relative bg-card-gradient border-0 shadow-lg rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-200">
-              <div className={`absolute top-0 left-0 w-full h-1 ${stat.color === 'youtube' ? 'bg-youtube-gradient' : `bg-${stat.color}-500`}`}></div>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-2">
-                    <p className="text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
-                      {stat.label}
-                    </p>
-                    <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                      {stat.value}
-                    </p>
+    <div className="mb-8">
+      <h2 className="text-lg font-medium text-white mb-4">Channel analytics</h2>
+      <div className="bg-[#1a1a1a] rounded-lg border border-gray-700">
+        <div className="p-4 border-b border-gray-700">
+          <h3 className="text-sm font-medium text-gray-300 mb-1">Current subscribers</h3>
+          <div className="text-2xl font-medium text-white">0</div>
+        </div>
+        
+        <div className="p-4">
+          <h3 className="text-sm font-medium text-gray-300 mb-3">Summary</h3>
+          <p className="text-xs text-gray-400 mb-4">Last 28 days</p>
+          
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {stats.map((stat) => {
+              const Icon = stat.icon;
+              return (
+                <div key={stat.label} className="space-y-1">
+                  <div className="flex items-center space-x-2">
+                    <Icon className="w-4 h-4 text-gray-400" />
+                    <span className="text-sm text-gray-300">{stat.label}</span>
                   </div>
-                  <div className={`w-14 h-14 ${stat.bgColor} rounded-xl flex items-center justify-center shadow-sm`}>
-                    <Icon className={`${stat.iconColor} text-xl`} />
+                  <div className="text-lg font-medium text-white">{stat.value}</div>
+                  <div className="flex items-center text-xs text-gray-400">
+                    <span className="text-green-400">{stat.change}</span>
+                    <span className="ml-1">vs previous period</span>
                   </div>
                 </div>
-                <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-                  <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-                    <div className={`w-2 h-2 ${stat.color === 'youtube' ? 'bg-youtube-500' : `bg-${stat.color}-500`} rounded-full mr-2 animate-pulse`}></div>
-                    From analyzed comments
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              );
+            })}
           </div>
-        );
-      })}
+        </div>
+        
+        <div className="p-4 border-t border-gray-700">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-sm text-gray-300">Views</p>
+              <p className="text-lg font-medium text-white">17</p>
+              <p className="text-xs text-gray-400">—</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-300">Watch time (hours)</p>
+              <p className="text-lg font-medium text-white">0.1</p>
+              <p className="text-xs text-gray-400">—</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

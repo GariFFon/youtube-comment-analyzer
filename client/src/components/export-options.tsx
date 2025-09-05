@@ -1,6 +1,5 @@
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, FileSpreadsheet, Share } from "lucide-react";
+import { FileText, FileSpreadsheet, Share, Download } from "lucide-react";
 
 export function ExportOptions() {
   const handleExportCSV = () => {
@@ -19,36 +18,42 @@ export function ExportOptions() {
   };
 
   return (
-    <Card>
-      <CardContent className="p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Export Options</h3>
+    <div className="mb-8">
+      <div className="bg-[#1a1a1a] rounded-lg border border-gray-700 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-medium text-white">Export Analysis</h3>
+          <Download className="w-5 h-5 text-gray-400" />
+        </div>
+        <p className="text-sm text-gray-400 mb-6">
+          Export your comment analysis data in various formats
+        </p>
         <div className="flex flex-wrap gap-3">
           <Button 
             variant="outline" 
             onClick={handleExportCSV}
-            className="flex items-center space-x-2"
+            className="bg-[#0f0f0f] border-gray-600 text-white hover:bg-gray-800 flex items-center space-x-2"
           >
-            <FileSpreadsheet className="h-4 w-4 text-green-600" />
-            <span>Export as CSV</span>
+            <FileSpreadsheet className="h-4 w-4" />
+            <span>Export CSV</span>
           </Button>
           <Button 
             variant="outline" 
             onClick={handleExportPDF}
-            className="flex items-center space-x-2"
+            className="bg-[#0f0f0f] border-gray-600 text-white hover:bg-gray-800 flex items-center space-x-2"
           >
-            <FileText className="h-4 w-4 text-red-600" />
-            <span>Export as PDF</span>
+            <FileText className="h-4 w-4" />
+            <span>Export PDF</span>
           </Button>
           <Button 
             variant="outline" 
             onClick={handleShare}
-            className="flex items-center space-x-2"
+            className="bg-[#0f0f0f] border-gray-600 text-white hover:bg-gray-800 flex items-center space-x-2"
           >
-            <Share className="h-4 w-4 text-blue-600" />
-            <span>Share Analysis</span>
+            <Share className="h-4 w-4" />
+            <span>Share</span>
           </Button>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
