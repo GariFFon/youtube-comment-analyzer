@@ -54,11 +54,6 @@ export function StatisticsOverview({ analysis, video, fetchingStats }: Statistic
     <div className="mb-8">
       <h2 className="text-lg font-medium text-white mb-4">Channel analytics</h2>
       <div className="bg-[#1a1a1a] rounded-lg border border-gray-700">
-        <div className="p-4 border-b border-gray-700">
-          <h3 className="text-sm font-medium text-gray-300 mb-1">Current subscribers</h3>
-          <div className="text-2xl font-medium text-white">0</div>
-        </div>
-        
         <div className="p-4">
           <h3 className="text-sm font-medium text-gray-300 mb-3">Summary</h3>
           <p className="text-xs text-gray-400 mb-4">Last 28 days</p>
