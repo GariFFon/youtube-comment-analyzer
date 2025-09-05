@@ -86,14 +86,14 @@ export function QuestionsTable({ videoId }: QuestionsTableProps) {
                 setCategory(value);
                 setCurrentPage(1);
               }}>
-                <SelectTrigger className="w-32 bg-[#0f0f0f] border-gray-600 text-white">
-                  <SelectValue />
+                <SelectTrigger className="w-40 bg-[#0f0f0f] border-gray-600 text-white hover:bg-gray-800 focus:ring-2 focus:ring-blue-500 transition-colors">
+                  <SelectValue placeholder="Select category" className="text-white font-medium" />
                 </SelectTrigger>
-                <SelectContent className="bg-[#1a1a1a] border-gray-600">
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="question">Questions</SelectItem>
-                  <SelectItem value="joke">Jokes</SelectItem>
-                  <SelectItem value="discussion">Discussions</SelectItem>
+                <SelectContent className="bg-[#1a1a1a] border-gray-600 shadow-xl">
+                  <SelectItem value="all" className="text-white hover:bg-gray-700 focus:bg-gray-700">All Comments</SelectItem>
+                  <SelectItem value="question" className="text-blue-400 hover:bg-blue-900/30 focus:bg-blue-900/30">Questions</SelectItem>
+                  <SelectItem value="joke" className="text-yellow-400 hover:bg-yellow-900/30 focus:bg-yellow-900/30">Jokes</SelectItem>
+                  <SelectItem value="discussion" className="text-purple-400 hover:bg-purple-900/30 focus:bg-purple-900/30">Discussions</SelectItem>
                 </SelectContent>
               </Select>
             </div>
