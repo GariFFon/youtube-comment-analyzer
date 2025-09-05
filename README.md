@@ -35,8 +35,8 @@ A beautiful, comprehensive web application that fetches comments from YouTube vi
 ### Backend
 - **Express.js** with TypeScript
 - **YouTube Data API v3** integration
-- **Drizzle ORM** for database operations
 - **Zod** for data validation
+- **In-memory storage** for fast data access
 
 ### Data Structures
 - **Trie**: Fast prefix-based comment search
@@ -48,7 +48,6 @@ A beautiful, comprehensive web application that fetches comments from YouTube vi
 ### Prerequisites
 - Node.js (v18 or higher)
 - YouTube Data API v3 key
-- PostgreSQL database (optional - uses in-memory storage by default)
 
 ### Installation
 
@@ -67,7 +66,6 @@ npm install
 Create a `.env` file with:
 ```
 YOUTUBE_API_KEY=your_youtube_api_key_here
-DATABASE_URL=your_database_url_here (optional)
 ```
 
 4. Start the development server:

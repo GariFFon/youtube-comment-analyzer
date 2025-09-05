@@ -1,81 +1,114 @@
-import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, timestamp, boolean, jsonb } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const videos = pgTable("videos", {
-  id: varchar("id").primaryKey(),
-  url: text("url").notNull().unique(),
-  title: text("title").notNull(),
-  channelTitle: text("channel_title").notNull(),
-  description: text("description"),
-  thumbnailUrl: text("thumbnail_url"),
-  viewCount: integer("view_count"),
-  likeCount: integer("like_count"),
-  commentCount: integer("comment_count"),
-  duration: text("duration"),
-  publishedAt: timestamp("published_at"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+// Data types for in-memory storage
+export interface Video {
+  id: string;
+  url: string;
+  title: string;
+  channelTitle: string;
+  description?: string | null;
+  thumbnailUrl?: string | null;
+  viewCount?: number | null;
+  likeCount?: number | null;
+  commentCount?: number | null;
+  duration?: string | null;
+  publishedAt?: Date | null;
+  createdAt: Date;
+}
+
+export interface Comment {
+  id: string;
+  videoId: string;
+  authorDisplayName: string;
+  authorProfileImageUrl?: string | null;
+  textDisplay: string;
+  textOriginal: string;
+  likeCount?: number | null;
+  replyCount?: number | null;
+  publishedAt: Date;
+  updatedAt?: Date | null;
+  parentId?: string | null;
+  category: string; // 'question', 'joke', 'discussion', 'positive', 'negative', 'neutral', 'spam'
+  sentiment?: string | null; // 'positive', 'negative', 'neutral'
+  topics?: string[] | null;
+  aiConfidence?: number | null; // 0-100
+  aiReasoning?: string | null;
+  isAiAnalyzed?: boolean;
+}
+
+export interface Analysis {
+  id: string;
+  videoId: string;
+  totalComments: number;
+  questionsCount: number;
+  jokesCount: number;
+  discussionsCount: number;
+  positiveCount?: number;
+  negativeCount?: number;
+  neutralCount?: number;
+  spamCount?: number;
+  topWords: Array<{word: string, count: number}>;
+  topTopics?: string[] | null;
+  aiSummary?: string | null;
+  isAiAnalyzed?: boolean;
+  createdAt: Date;
+}
+
+// Input schemas for creating new records
+export const insertVideoSchema = z.object({
+  url: z.string(),
+  title: z.string(),
+  channelTitle: z.string(),
+  description: z.string().optional(),
+  thumbnailUrl: z.string().optional(),
+  viewCount: z.number().optional(),
+  likeCount: z.number().optional(),
+  commentCount: z.number().optional(),
+  duration: z.string().optional(),
+  publishedAt: z.date().optional(),
 });
 
-export const comments = pgTable("comments", {
-  id: varchar("id").primaryKey(),
-  videoId: varchar("video_id").references(() => videos.id).notNull(),
-  authorDisplayName: text("author_display_name").notNull(),
-  authorProfileImageUrl: text("author_profile_image_url"),
-  textDisplay: text("text_display").notNull(),
-  textOriginal: text("text_original").notNull(),
-  likeCount: integer("like_count").default(0),
-  replyCount: integer("reply_count").default(0),
-  publishedAt: timestamp("published_at").notNull(),
-  updatedAt: timestamp("updated_at"),
-  parentId: varchar("parent_id"),
-  category: text("category").notNull(), // 'question', 'joke', 'discussion', 'positive', 'negative', 'neutral', 'spam'
-  sentiment: text("sentiment"), // 'positive', 'negative', 'neutral'
-  topics: jsonb("topics").$type<string[]>(),
-  aiConfidence: integer("ai_confidence"), // 0-100
-  aiReasoning: text("ai_reasoning"),
-  isAiAnalyzed: boolean("is_ai_analyzed").default(false),
+export const insertCommentSchema = z.object({
+  videoId: z.string(),
+  authorDisplayName: z.string(),
+  authorProfileImageUrl: z.string().optional(),
+  textDisplay: z.string(),
+  textOriginal: z.string(),
+  likeCount: z.number().optional(),
+  replyCount: z.number().optional(),
+  publishedAt: z.date(),
+  updatedAt: z.date().optional(),
+  parentId: z.string().optional(),
+  category: z.string(),
+  sentiment: z.string().optional(),
+  topics: z.array(z.string()).optional(),
+  aiConfidence: z.number().optional(),
+  aiReasoning: z.string().optional(),
+  isAiAnalyzed: z.boolean().optional(),
 });
 
-export const analyses = pgTable("analyses", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  videoId: varchar("video_id").references(() => videos.id).notNull(),
-  totalComments: integer("total_comments").notNull(),
-  questionsCount: integer("questions_count").notNull(),
-  jokesCount: integer("jokes_count").notNull(),
-  discussionsCount: integer("discussions_count").notNull(),
-  positiveCount: integer("positive_count").default(0),
-  negativeCount: integer("negative_count").default(0),
-  neutralCount: integer("neutral_count").default(0),
-  spamCount: integer("spam_count").default(0),
-  topWords: jsonb("top_words").$type<Array<{word: string, count: number}>>().notNull(),
-  topTopics: jsonb("top_topics").$type<string[]>(),
-  aiSummary: text("ai_summary"),
-  isAiAnalyzed: boolean("is_ai_analyzed").default(false),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-export const insertVideoSchema = createInsertSchema(videos).omit({
-  id: true,
-  createdAt: true,
-});
-
-export const insertCommentSchema = createInsertSchema(comments).omit({
-  id: true,
-});
-
-export const insertAnalysisSchema = createInsertSchema(analyses).omit({
-  id: true,
-  createdAt: true,
+export const insertAnalysisSchema = z.object({
+  videoId: z.string(),
+  totalComments: z.number(),
+  questionsCount: z.number(),
+  jokesCount: z.number(),
+  discussionsCount: z.number(),
+  positiveCount: z.number().optional(),
+  negativeCount: z.number().optional(),
+  neutralCount: z.number().optional(),
+  spamCount: z.number().optional(),
+  topWords: z.array(z.object({
+    word: z.string(),
+    count: z.number()
+  })),
+  topTopics: z.array(z.string()).optional(),
+  aiSummary: z.string().optional(),
+  isAiAnalyzed: z.boolean().optional(),
 });
 
 export type InsertVideo = z.infer<typeof insertVideoSchema>;
-export type Video = typeof videos.$inferSelect;
 export type InsertComment = z.infer<typeof insertCommentSchema>;
-export type Comment = typeof comments.$inferSelect;
 export type InsertAnalysis = z.infer<typeof insertAnalysisSchema>;
-export type Analysis = typeof analyses.$inferSelect;
 
 // Request/Response schemas
 export const analyzeVideoSchema = z.object({
