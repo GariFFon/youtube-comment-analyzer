@@ -1,5 +1,5 @@
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import type { Analysis } from "@shared/schema";
+import type { Analysis } from "@/types/schema";
 
 interface ChartsSectionProps {
   analysis: Analysis;

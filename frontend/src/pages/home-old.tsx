@@ -8,7 +8,7 @@ import { ExportOptions } from "@/components/export-options";
 import { YouTubeStudioHeader } from "@/components/youtube-studio-header";
 import { YouTubeStudioSidebar } from "@/components/youtube-studio-sidebar";
 import { Menu, Search, HelpCircle, Settings, Bell, Upload } from "lucide-react";
-import type { Video, Analysis } from "@shared/schema";
+import type { Video, Analysis } from "@/types/schema";
 
 export default function Home() {
   const [currentVideo, setCurrentVideo] = useState<Video | null>(null);

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, ThumbsUp, MessageCircle } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
-import type { Comment } from "@shared/schema";
+import type { Comment } from "@/types/schema";
 
 interface QuestionsTableProps {
   videoId: string;

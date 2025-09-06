@@ -155,11 +155,13 @@
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: var(--border);
   }
 
   body {
-    @apply font-sans antialiased text-foreground;
+    font-family: var(--font-sans), Inter, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    color: var(--foreground);
     background: var(--background-solid);
   }
 

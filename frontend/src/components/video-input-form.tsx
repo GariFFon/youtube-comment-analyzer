@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { analyzeVideoSchema, type AnalyzeVideoRequest, type Video, type Analysis } from "@shared/schema";
+import { analyzeVideoSchema, type AnalyzeVideoRequest, type Video, type Analysis } from "@/types/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { MessageCircle, HelpCircle, Laugh, Users, AlertTriangle, CheckCircle } from "lucide-react";
-import type { Analysis } from "@shared/schema";
+import type { Analysis } from "@/types/schema";
 
 interface StatisticsOverviewProps {
   analysis: Analysis;

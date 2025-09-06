@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink, MessageCircle, Clock } from "lucide-react";
-import type { Video } from "@shared/schema";
+import type { Video } from "@/types/schema";
 
 interface VideoInfoProps {
   video: Video;
@@ -69,7 +69,7 @@ export function VideoInfo({ video }: VideoInfoProps) {
               <span>•</span>
               <span>{formatViews(video.viewCount || 0)} views</span>
               <span>•</span>
-              <span>{getRelativeTime(video.publishedAt)}</span>
+              <span>{getRelativeTime(video.publishedAt || null)}</span>
             </div>
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-1 text-sm text-gray-300">
